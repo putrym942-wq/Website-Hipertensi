@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HyperScan — Deteksi Risiko Hipertensi</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red-deep:   #B91C1C;
+      --red-mid:    #DC2626;
+      --red-light:  #FEE2E2;
+      --red-glow:   #FCA5A5;
+      --bg:         #0F0F0F;
+      --surface:    #181818;
+      --surface2:   #222222;
+      --border:     #2C2C2C;
+      --text:       #F5F5F5;
+      --muted:      #888888;
+      --label:      #AAAAAA;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 28px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text);
+    }
+    .logo span { color: var(--red-mid); }
+    .badge {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 12px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 72px 40px 48px;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 600px; height: 300px;
+      background: radial-gradient(ellipse at top, rgba(185,28,28,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--red-mid);
+      margin-bottom: 24px;
+    }
+    .hero-eyebrow::before, .hero-eyebrow::after {
+      content: '';
+      display: block;
+      width: 28px; height: 1px;
+      background: var(--red-mid);
+    }
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(36px, 5vw, 64px);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      margin-bottom: 20px;
+    }
+    h1 em {
+      font-style: normal;
+      color: var(--red-mid);
+      position: relative;
+    }
+    .hero-sub {
+      max-width: 520px;
+      margin: 0 auto 40px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+    .hero-stats {
+      display: flex;
+      justify-content: center;
+      gap: 48px;
+      margin-bottom: 56px;
+    }
+    .stat { text-align: center; }
+    .stat-num {
+      display: block;
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -1px;
+    }
+    .stat-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+    }
+
+    /* ── FORM CARD ── */
+    .form-wrapper {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 28px 36px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .card-header-icon {
+      width: 36px; height: 36px;
+      background: var(--red-deep);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .card-header h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+    .card-header p {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    form { padding: 36px; }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--red-mid);
+      margin-bottom: 20px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+
+    label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--label);
+      letter-spacing: 0.3px;
+    }
+    label .unit {
+      font-weight: 400;
+      color: var(--muted);
+      font-size: 11px;
+      margin-left: 4px;
+    }
+
+    input[type="number"],
+    select {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      padding: 11px 14px;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    input[type="number"]:focus,
+    select:focus {
+      border-color: var(--red-mid);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+    }
+    input[type="number"]::placeholder { color: var(--muted); }
+
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: '▾';
+      position: absolute;
+      right: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted);
+      font-size: 12px;
+      pointer-events: none;
+    }
+    select { cursor: pointer; padding-right: 32px; }
+    select option { background: #1a1a1a; }
+
+    /* Slider for Stress Score */
+    .slider-field { display: flex; flex-direction: column; gap: 6px; }
+    .slider-header { display: flex; justify-content: space-between; align-items: center; }
+    .slider-val {
+      font-size: 20px;
+      font-weight: 700;
+      font-family: 'Syne', sans-serif;
+      color: var(--text);
+      min-width: 30px;
+      text-align: right;
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      background: var(--red-mid);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 0 4px rgba(220,38,38,0.15);
+      transition: box-shadow 0.2s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover {
+      box-shadow: 0 0 0 6px rgba(220,38,38,0.25);
+    }
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: -4px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 32px 0;
+    }
+
+    /* Chip toggles for binary fields */
+    .chip-group {
+      display: flex;
+      gap: 8px;
+    }
+    .chip {
+      flex: 1;
+      text-align: center;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--muted);
+      transition: all 0.15s;
+      user-select: none;
+    }
+    .chip input[type="radio"] { display: none; }
+    .chip:has(input:checked) {
+      border-color: var(--red-mid);
+      background: rgba(220,38,38,0.1);
+      color: var(--text);
+    }
+
+    /* Submit */
+    .submit-area {
+      margin-top: 36px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .btn-primary {
+      flex: 1;
+      background: var(--red-mid);
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      padding: 16px 32px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      letter-spacing: 0.2px;
+    }
+    .btn-primary:hover { background: var(--red-deep); }
+    .btn-primary:active { transform: scale(0.99); }
+    .disclaimer {
+      font-size: 11px;
+      color: var(--muted);
+      max-width: 220px;
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 24px;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 640px) {
+      header { padding: 20px; }
+      .hero { padding: 48px 20px 32px; }
+      .hero-stats { gap: 28px; }
+      form { padding: 24px 20px; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .submit-area { flex-direction: column; }
+      .disclaimer { max-width: 100%; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Hyper<span>Scan</span></div>
+  <span class="badge">Random Forest Model</span>
+</header>
+
+<section class="hero">
+  <div class="hero-eyebrow">Prediksi Berbasis AI</div>
+  <h1>Kenali Risiko<br /><em>Hipertensi</em> Anda</h1>
+  <p class="hero-sub">Masukkan data kesehatan Anda dan dapatkan prediksi risiko hipertensi menggunakan model Random Forest yang terlatih pada data klinis nyata.</p>
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num">10</span>
+      <span class="stat-label">Faktor Risiko</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">RF</span>
+      <span class="stat-label">Algoritma</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">&lt;2s</span>
+      <span class="stat-label">Waktu Analisis</span>
+    </div>
+  </div>
+</section>
+
+<div class="form-wrapper">
+  <div class="card">
+    <div class="card-header">
+      <div class="card-header-icon">🩺</div>
+      <div>
+        <h2>Form Data Kesehatan</h2>
+        <p>Semua field wajib diisi untuk hasil yang akurat</p>
+      </div>
+    </div>
+
+    <form action="/predict" method="POST">
+
+      <!-- SECTION 1: Profil Dasar -->
+      <p class="section-label">Profil Dasar</p>
+      <div class="grid-3">
+        <div class="field">
+          <label>Usia <span class="unit">tahun</span></label>
+          <input type="number" name="Age" placeholder="18 – 84" min="18" max="84" required />
+        </div>
+        <div class="field">
+          <label>BMI <span class="unit">kg/m²</span></label>
+          <input type="number" name="BMI" step="0.1" placeholder="12.0 – 42.0" min="10" max="50" required />
+        </div>
+        <div class="field">
+          <label>Durasi Tidur <span class="unit">jam/hari</span></label>
+          <input type="number" name="Sleep_Duration" step="0.5" placeholder="1.5 – 11.5" min="1" max="12" required />
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- SECTION 2: Gaya Hidup -->
+      <p class="section-label">Gaya Hidup</p>
+      <div class="grid-2">
+        <div class="field">
+          <label>Asupan Garam <span class="unit">g/hari</span></label>
+          <input type="number" name="Salt_Intake" step="0.1" placeholder="2.5 – 16.5" min="0" max="20" required />
+        </div>
+        <div class="field">
+          <label>Tingkat Olahraga</label>
+          <div class="select-wrap">
+            <select name="Exercise_Level" required>
+              <option value="" disabled selected>Pilih tingkat aktivitas</option>
+              <option value="Low">Rendah (Low)</option>
+              <option value="Moderate">Sedang (Moderate)</option>
+              <option value="High">Tinggi (High)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="slider-field" style="margin-bottom: 28px;">
+        <div class="slider-header">
+          <label>Skor Stres</label>
+          <span class="slider-val" id="stressVal">5</span>
+        </div>
+        <input type="range" name="Stress_Score" id="stressRange" min="0" max="10" value="5" step="1" />
+        <div class="slider-labels">
+          <span>0 — Sangat Rendah</span>
+          <span>10 — Sangat Tinggi</span>
+        </div>
+        <!-- Hidden input trick to match string type -->
+      </div>
+
+      <div class="grid-2" style="margin-bottom: 28px;">
+        <div class="field">
+          <label>Status Merokok</label>
+          <div class="chip-group">
+            <label class="chip">
+              <input type="radio" name="Smoking_Status" value="Non-Smoker" required />
+              🚭 Tidak Merokok
+            </label>
+            <label class="chip">
+              <input type="radio" name="Smoking_Status" value="Smoker" />
+              🚬 Perokok
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <label>Riwayat Keluarga Hipertensi</label>
+          <div class="chip-group">
+            <label class="chip">
+              <input type="radio" name="Family_History" value="Yes" required />
+              ✅ Ada
+            </label>
+            <label class="chip">
+              <input type="radio" name="Family_History" value="No" />
+              ❌ Tidak Ada
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- SECTION 3: Riwayat Medis -->
+      <p class="section-label">Riwayat Medis</p>
+      <div class="grid-2">
+        <div class="field">
+          <label>Riwayat Tekanan Darah</label>
+          <div class="select-wrap">
+            <select name="BP_History" required>
+              <option value="" disabled selected>Pilih kondisi</option>
+              <option value="Normal">Normal</option>
+              <option value="Prehypertension">Pre-hipertensi</option>
+              <option value="Hypertension">Hipertensi</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Obat yang Dikonsumsi</label>
+          <div class="select-wrap">
+            <select name="Medication" required>
+              <option value="" disabled selected>Pilih obat (jika ada)</option>
+              <option value="">Tidak ada</option>
+              <option value="ACE Inhibitor">ACE Inhibitor</option>
+              <option value="Beta Blocker">Beta Blocker</option>
+              <option value="Diuretic">Diuretik (Diuretic)</option>
+              <option value="Other">Lainnya (Other)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <div class="submit-area">
+        <button type="submit" class="btn-primary">Analisis Risiko Saya →</button>
+        <p class="disclaimer">Hasil prediksi ini bersifat informatif dan bukan pengganti diagnosis medis profesional.</p>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<footer>HyperScan &copy; 2025 &mdash; Model Random Forest untuk Prediksi Risiko Hipertensi</footer>
+
+<script>
+  const range = document.getElementById('stressRange');
+  const val   = document.getElementById('stressVal');
+  range.addEventListener('input', () => { val.textContent = range.value; });
+
+  // Color the slider track dynamically
+  function updateTrack() {
+    const pct = (range.value / 10) * 100;
+    const hue = Math.round(0 + (1 - range.value / 10) * 0); // always red spectrum
+    range.style.background = `linear-gradient(to right, #DC2626 ${pct}%, #2C2C2C ${pct}%)`;
+  }
+  range.addEventListener('input', updateTrack);
+  updateTrack();
+</script>
+
+</body>
+</html>
